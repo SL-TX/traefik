@@ -55,6 +55,7 @@ type Configuration struct {
 	KeyType              string   `description:"KeyType used for generating certificate private key. Allow value 'EC256', 'EC384', 'RSA2048', 'RSA4096', 'RSA8192'." json:"keyType,omitempty" toml:"keyType,omitempty" yaml:"keyType,omitempty" export:"true"`
 	EAB                  *EAB     `description:"External Account Binding to use." json:"eab,omitempty" toml:"eab,omitempty" yaml:"eab,omitempty"`
 	CertificatesDuration int      `description:"Certificates' duration in hours." json:"certificatesDuration,omitempty" toml:"certificatesDuration,omitempty" yaml:"certificatesDuration,omitempty" export:"true"`
+	NUCCompliance        bool     `description:"Enable the ИС НУЦ certificate compliance: countryName C=RU, KeyUsage extension (digitalSignature, keyEncipherment, keyAgreement) and ExtendedKeyUsage extension (serverAuth, clientAuth) in the CSR, and renew certificates 85 days before expiry." json:"nucCompliance,omitempty" toml:"nucCompliance,omitempty" yaml:"nucCompliance,omitempty" export:"true"`
 
 	ReusePrivateKey *bool `description:"Reuse the private key from the previous certificate generation during the renewal." json:"reusePrivateKey,omitempty" toml:"reusePrivateKey,omitempty" yaml:"reusePrivateKey,omitempty" export:"true"`
 
@@ -256,7 +257,7 @@ func (p *Provider) Provide(configurationChan chan<- dynamic.Message, pool *safe.
 
 	p.configurationChan <- msg
 
-	renewPeriod, renewInterval := getCertificateRenewDurations(p.CertificatesDuration)
+	renewPeriod, renewInterval := getCertificateRenewDurations(p.CertificatesDuration, p.NUCCompliance)
 	logger.Debug().Msgf("Attempt to renew certificates %q before expiry and check every %q",
 		renewPeriod, renewInterval)
 
@@ -699,6 +700,7 @@ func (p *Provider) resolveDefaultCertificate(ctx context.Context, domains []stri
 		PreferredChain:   p.PreferredChain,
 		EnableCommonName: !p.DisableCommonName,
 		KeyType:          GetKeyType(ctx, p.KeyType),
+		NUCCompliance:    p.NUCCompliance,
 	}
 
 	cert, err := client.Certificate.Obtain(ctx, request)
@@ -747,6 +749,7 @@ func (p *Provider) resolveCertificate(ctx context.Context, domain types.Domain, 
 		PreferredChain:   p.PreferredChain,
 		EnableCommonName: !p.DisableCommonName,
 		KeyType:          GetKeyType(ctx, p.KeyType),
+		NUCCompliance:    p.NUCCompliance,
 	}
 
 	cert, err := client.Certificate.Obtain(ctx, request)
@@ -810,11 +813,17 @@ func (p *Provider) addCertificateForDomain(domain types.Domain, crt *certificate
 // getCertificateRenewDurations returns renew durations calculated from the given certificatesDuration in hours.
 // The first (RenewPeriod) is the period before the end of the certificate duration, during which the certificate should be renewed.
 // The second (RenewInterval) is the interval between renew attempts.
-func getCertificateRenewDurations(certificatesDuration int) (time.Duration, time.Duration) {
+//
+// When nucCompliance is enabled, certificates are renewed earlier (85 days before expiry)
+// as required for the 90-day certificates issued by the ИС НУЦ CA.
+func getCertificateRenewDurations(certificatesDuration int, nucCompliance bool) (time.Duration, time.Duration) {
 	switch {
 	case certificatesDuration >= 365*24: // >= 1 year
 		return 4 * 30 * 24 * time.Hour, 7 * 24 * time.Hour // 4 month, 1 week
 	case certificatesDuration >= 3*30*24: // >= 90 days
+		if nucCompliance {
+			return 85 * 24 * time.Hour, 24 * time.Hour // 85 days, 1 day
+		}
 		return 30 * 24 * time.Hour, 24 * time.Hour // 30 days, 1 day
 	case certificatesDuration >= 30*24: // >= 30 days
 		return 10 * 24 * time.Hour, 12 * time.Hour // 10 days, 12 hours
@@ -960,6 +969,7 @@ func (p *Provider) renewCertificates(ctx context.Context, renewPeriod time.Durat
 			Profile:          p.Profile,
 			PreferredChain:   p.PreferredChain,
 			EnableCommonName: !p.DisableCommonName,
+			NUCCompliance:    p.NUCCompliance,
 		}
 
 		renewedCert, err := client.Certificate.Renew(ctx, res, opts)

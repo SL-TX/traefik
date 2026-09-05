@@ -598,6 +598,7 @@ certificatesResolvers:
         kid: foobar
         hmacEncoded: foobar
       certificatesDuration: 42
+      nucCompliance: false
       clientTimeout: 42s
       clientResponseHeaderTimeout: 42s
       caCertificates:
@@ -639,6 +640,7 @@ certificatesResolvers:
         kid: foobar
         hmacEncoded: foobar
       certificatesDuration: 42
+      nucCompliance: false
       clientTimeout: 42s
       clientResponseHeaderTimeout: 42s
       caCertificates:

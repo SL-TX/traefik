@@ -551,6 +551,7 @@
       storage = "foobar"
       keyType = "foobar"
       certificatesDuration = 42
+      nucCompliance = false
       clientTimeout = "42s"
       clientResponseHeaderTimeout = "42s"
       caCertificates = ["foobar", "foobar"]
@@ -586,6 +587,7 @@
       storage = "foobar"
       keyType = "foobar"
       certificatesDuration = 42
+      nucCompliance = false
       clientTimeout = "42s"
       clientResponseHeaderTimeout = "42s"
       caCertificates = ["foobar", "foobar"]

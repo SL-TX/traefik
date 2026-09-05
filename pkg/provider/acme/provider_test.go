@@ -590,6 +590,7 @@ func Test_getCertificateRenewDurations(t *testing.T) {
 	testCases := []struct {
 		desc                  string
 		certificatesDurations int
+		nucCompliance         bool
 		expectRenewPeriod     time.Duration
 		expectRenewInterval   time.Duration
 	}{
@@ -615,6 +616,13 @@ func Test_getCertificateRenewDurations(t *testing.T) {
 			desc:                  "90 Days certificates: 30 days renew period, 1 day renew interval",
 			certificatesDurations: 24 * 90,
 			expectRenewPeriod:     time.Hour * 24 * 30,
+			expectRenewInterval:   time.Hour * 24,
+		},
+		{
+			desc:                  "90 Days certificates with NUC compliance: 85 days renew period, 1 day renew interval",
+			certificatesDurations: 24 * 90,
+			nucCompliance:         true,
+			expectRenewPeriod:     time.Hour * 24 * 85,
 			expectRenewInterval:   time.Hour * 24,
 		},
 		{
@@ -652,7 +660,7 @@ func Test_getCertificateRenewDurations(t *testing.T) {
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
-			renewPeriod, renewInterval := getCertificateRenewDurations(test.certificatesDurations)
+			renewPeriod, renewInterval := getCertificateRenewDurations(test.certificatesDurations, test.nucCompliance)
 			assert.Equal(t, test.expectRenewPeriod, renewPeriod)
 			assert.Equal(t, test.expectRenewInterval, renewInterval)
 		})

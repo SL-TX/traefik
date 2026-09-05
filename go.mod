@@ -420,6 +420,9 @@ replace (
 	github.com/gorilla/mux => github.com/containous/mux v0.0.0-20250523120546-41b6ec3aed59
 )
 
+// Patched lego (ИС НУЦ compliance, opt-in via acme.nucCompliance): CSR keyUsage + countryName C=RU, reg.ru debug redaction.
+replace github.com/go-acme/lego/v5 => /home/sl/git/lego
+
 // ambiguous import: found package github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/http in multiple modules
 // tencentcloud uses monorepo with multimodule but the go.mod files are incomplete.
 exclude github.com/tencentcloud/tencentcloud-sdk-go v3.0.83+incompatible

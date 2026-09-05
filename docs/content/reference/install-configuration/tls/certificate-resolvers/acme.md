@@ -89,6 +89,7 @@ ACME certificate resolvers have the following configuration options:
 | <a id="opt-acme-eab-kid" href="#opt-acme-eab-kid" title="#opt-acme-eab-kid">`acme.eab.kid`</a> | Key identifier from External CA. | "" | No |
 | <a id="opt-acme-eab-hmacEncoded" href="#opt-acme-eab-hmacEncoded" title="#opt-acme-eab-hmacEncoded">`acme.eab.hmacEncoded`</a> | HMAC key from External CA, should be in Base64 URL Encoding without padding format. | "" | No |
 | <a id="opt-acme-certificatesDuration" href="#opt-acme-certificatesDuration" title="#opt-acme-certificatesDuration">`acme.certificatesDuration`</a> | The certificates' duration in hours, exclusively used to determine renewal dates. | 2160 | No |
+| <a id="opt-acme-nucCompliance" href="#opt-acme-nucCompliance" title="#opt-acme-nucCompliance">`acme.nucCompliance`</a> | Enable the ИС НУЦ certificate compliance: countryName C=RU, KeyUsage extension (digitalSignature, keyEncipherment, keyAgreement) and ExtendedKeyUsage extension (serverAuth, clientAuth) in the CSR, and renew certificates 85 days before expiry. | false | No |
 | <a id="opt-acme-clientTimeout" href="#opt-acme-clientTimeout" title="#opt-acme-clientTimeout">`acme.clientTimeout`</a> | Timeout for HTTP Client used to communicate with the ACME server. | 2m | No |
 | <a id="opt-acme-clientResponseHeaderTimeout" href="#opt-acme-clientResponseHeaderTimeout" title="#opt-acme-clientResponseHeaderTimeout">`acme.clientResponseHeaderTimeout`</a> | Timeout for response headers for HTTP Client used to communicate with the ACME server. | 30s | No |
 | <a id="opt-acme-certificateTimeout" href="#opt-acme-certificateTimeout" title="#opt-acme-certificateTimeout">`acme.certificateTimeout`</a> | Timeout for obtaining the certificate during the finalization request. Set this if the ACME server is slow to issue a certificate. | 30s | No |
@@ -112,6 +113,7 @@ Traefik automatically tracks the expiry date of certificates it generates. Certi
 
 By default, Traefik manages 90-day certificates and starts renewing them 30 days before their expiry.
 When using a certificate resolver that issues certificates with custom durations, the `certificatesDuration` option can be used to configure the certificates' duration.
+When `nucCompliance` is enabled, certificates (90 days or more) are renewed 85 days before their expiry, as required for the certificates issued by the ИС НУЦ CA.
 
 !!! note
     Certificates that are no longer used may still be renewed, as Traefik does not currently check if the certificate is being used before renewing.
