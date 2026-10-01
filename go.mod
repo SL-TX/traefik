@@ -421,7 +421,7 @@ replace (
 )
 
 // Patched lego (ИС НУЦ compliance, opt-in via acme.nucCompliance): CSR keyUsage + countryName C=RU, reg.ru debug redaction.
-replace github.com/go-acme/lego/v5 => /home/sl/git/lego
+replace github.com/go-acme/lego/v5 => github.com/SL-TX/lego/v5 v5.5.2-nuc-patch
 
 // ambiguous import: found package github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/http in multiple modules
 // tencentcloud uses monorepo with multimodule but the go.mod files are incomplete.
